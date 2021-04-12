@@ -9,5 +9,5 @@ var (
 )
 
 func randomInt() int {
-	return r.Intn(100)
+	return r.Intn(10)
 }

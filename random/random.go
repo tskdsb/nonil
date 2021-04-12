@@ -6,30 +6,39 @@ import (
 )
 
 const (
-	DefaultBool  = true
-	DefaultFloat = 3.14
+	DefaultBool = true
 
 	DefaultSliceLen = 1
 	DefaultMapLen   = 1
 )
 
-func GetValueByType(t reflect.Type) interface{} {
+func SimpleValue(t reflect.Type) (reflect.Value, bool) {
+	v := reflect.New(t).Elem()
+
 	switch t.Kind() {
 	case reflect.Bool:
-		return DefaultBool
+		v.Set(reflect.ValueOf(DefaultBool))
+		return v, true
 	case reflect.String:
-		return randomString()
+		v.Set(reflect.ValueOf(randomString()))
+		return v, true
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return randomInt()
-	case reflect.Float32, reflect.Float64:
-		return DefaultFloat
+		v.Set(reflect.ValueOf(randomInt()))
+		return v, true
+	case reflect.Float32:
+		v.Set(reflect.ValueOf(randomFloat32()))
+		return v, true
+	case reflect.Float64:
+		v.Set(reflect.ValueOf(randomFloat64()))
+		return v, true
 	}
 
 	switch t {
 	case reflect.TypeOf(time.Time{}):
-		return time.Now()
+		v.Set(reflect.ValueOf(time.Now()))
+		return v, true
 	}
 
-	return nil
+	return v, false
 }

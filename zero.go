@@ -7,69 +7,67 @@ import (
 )
 
 // Zero returns instance with every field set by type.
-func Zero(t reflect.Type) (interface{}, error) {
-	if v := random.GetValueByType(t); v != nil {
-		return v, nil
+func Zero(t reflect.Type) interface{} {
+	isPtr := false
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+		isPtr = true
 	}
 
-	k := t.Kind()
-	switch k {
-	case reflect.Struct:
-		return fillStruct(t)
-	case reflect.Slice:
-		return fillSlice(t)
-	case reflect.Map:
-		return fillMap(t)
+	var value reflect.Value
+	if v, has := random.SimpleValue(t); has {
+		value = v
+	} else {
+		k := t.Kind()
+		switch k {
+		case reflect.Struct:
+			value = fillStruct(t)
+		case reflect.Slice:
+			value = fillSlice(t)
+		case reflect.Map:
+			value = fillMap(t)
+		}
 	}
 
-	return nil, nil
+	if isPtr {
+		value = value.Addr()
+	}
+
+	return value.Interface()
 }
 
-func fillStruct(t reflect.Type) (interface{}, error) {
+func fillStruct(t reflect.Type) reflect.Value {
 	zeroValue := reflect.New(t).Elem()
 
 	l := zeroValue.NumField()
 	for i := 0; i < l; i++ {
 		ft := zeroValue.Field(i).Type()
-		v, err := Zero(ft)
-		if err != nil {
-			return nil, err
-		}
+		v := Zero(ft)
 		zeroValue.Field(i).Set(reflect.ValueOf(v))
 	}
 
-	return zeroValue.Interface(), nil
+	return zeroValue
 }
 
-func fillSlice(t reflect.Type) (interface{}, error) {
+func fillSlice(t reflect.Type) reflect.Value {
 	zeroValue := reflect.MakeSlice(t, random.DefaultSliceLen, random.DefaultSliceLen)
 
-	v, err := Zero(t.Elem())
-	if err != nil {
-		return nil, err
-	}
-
+	v := Zero(t.Elem())
 	for i := 0; i < random.DefaultSliceLen; i++ {
 		zeroValue.Index(i).Set(reflect.ValueOf(v))
 	}
 
-	return zeroValue.Interface(), nil
+	return zeroValue
 }
 
-func fillMap(t reflect.Type) (interface{}, error) {
+func fillMap(t reflect.Type) reflect.Value {
 	zeroValue := reflect.MakeMapWithSize(t, random.DefaultMapLen)
 
 	for i := 0; i < random.DefaultSliceLen; i++ {
-		k, err := Zero(t.Key())
-		if err != nil {
-			return nil, err
-		}
-		v, err := Zero(t.Elem())
-		if err != nil {
-			return nil, err
-		}
+		k := Zero(t.Key())
+		v := Zero(t.Elem())
 		zeroValue.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(v))
 	}
 
-	return zeroValue.Interface(), nil
+	return zeroValue
 }
