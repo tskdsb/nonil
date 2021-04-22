@@ -17,20 +17,22 @@ func SimpleValue(t reflect.Type) (reflect.Value, bool) {
 
 	switch t.Kind() {
 	case reflect.Bool:
-		v.Set(reflect.ValueOf(DefaultBool))
+		v.SetBool(DefaultBool)
 		return v, true
 	case reflect.String:
-		v.Set(reflect.ValueOf(randomString()))
+		v.SetString(randomString())
 		return v, true
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		v.Set(reflect.ValueOf(randomInt()))
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		v.SetInt(int64(randomInt()))
+		return v, true
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		v.SetUint(uint64(randomInt()))
 		return v, true
 	case reflect.Float32:
-		v.Set(reflect.ValueOf(randomFloat32()))
+		v.SetFloat(float64(randomFloat32()))
 		return v, true
 	case reflect.Float64:
-		v.Set(reflect.ValueOf(randomFloat64()))
+		v.SetFloat(randomFloat64())
 		return v, true
 	}
 
