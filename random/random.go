@@ -7,8 +7,8 @@ import (
 const (
 	DefaultBool = true
 
-	DefaultSliceLen = 1
-	DefaultMapLen   = 1
+	DefaultSliceLen = 3
+	DefaultMapLen   = 3
 )
 
 var (
