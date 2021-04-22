@@ -2,7 +2,6 @@ package random
 
 import (
 	"reflect"
-	"time"
 )
 
 const (
@@ -11,6 +10,16 @@ const (
 	DefaultSliceLen = 1
 	DefaultMapLen   = 1
 )
+
+var (
+	registeredGenerator map[reflect.Type]valueGenerator
+)
+
+type valueGenerator func() interface{}
+
+func RegisterGenerator(t reflect.Type, g valueGenerator) {
+	registeredGenerator[t] = g
+}
 
 func SimpleValue(t reflect.Type) (reflect.Value, bool) {
 	v := reflect.New(t).Elem()
@@ -36,9 +45,9 @@ func SimpleValue(t reflect.Type) (reflect.Value, bool) {
 		return v, true
 	}
 
-	switch t {
-	case reflect.TypeOf(time.Time{}):
-		v.Set(reflect.ValueOf(time.Now()))
+	g, ok := registeredGenerator[t]
+	if ok {
+		v.Set(reflect.ValueOf(g()))
 		return v, true
 	}
 
